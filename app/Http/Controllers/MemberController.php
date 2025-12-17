@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Member;
 use Illuminate\Http\Request;
+use App\Imports\MembersImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MemberController extends Controller
 {
@@ -43,7 +45,8 @@ class MemberController extends Controller
             'member_type' => 'required|string',
             'date_of_birth' => 'required|date',
             'subscriptions' => 'nullable|array',
-            'subscriptions.*' => 'integer|min:1900',
+            'subscriptions.*.year' => 'required|integer|min:1900',
+            'subscriptions.*.revenue' => 'nullable|numeric',
         ]);
 
         $validated['member_number'] = 'MEM-' . uniqid();
@@ -51,8 +54,8 @@ class MemberController extends Controller
         $member = Member::create($validated);
 
         if ($request->has('subscriptions')) {
-            foreach ($request->subscriptions as $year) {
-                $member->subscriptions()->create(['year' => $year]);
+            foreach ($request->subscriptions as $subscription) {
+                $member->subscriptions()->create($subscription);
             }
         }
 
@@ -85,7 +88,8 @@ class MemberController extends Controller
             'member_type' => 'required|string',
             'date_of_birth' => 'required|date',
             'subscriptions' => 'nullable|array',
-            'subscriptions.*' => 'integer|min:1900',
+            'subscriptions.*.year' => 'required|integer|min:1900',
+            'subscriptions.*.revenue' => 'nullable|numeric',
         ]);
 
         $member->update($validated);
@@ -93,8 +97,10 @@ class MemberController extends Controller
         $member->subscriptions()->delete();
 
         if ($request->has('subscriptions')) {
-            foreach ($request->subscriptions as $year) {
-                $member->subscriptions()->create(['year' => $year]);
+            foreach ($request->subscriptions as $subscription) {
+                if(!empty($subscription['revenue'])){
+                    $member->subscriptions()->create($subscription);
+                }
             }
         }
 
@@ -106,5 +112,40 @@ class MemberController extends Controller
         $member->delete();
 
         return redirect()->route('members.index')->with('success', 'Member deleted successfully.');
+    }
+
+    public function showUploadForm()
+    {
+        return view('members.upload');
+    }
+
+    public function upload(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt,xlsx,xls',
+        ]);
+
+        $import = new MembersImport;
+        Excel::import($import, $request->file('file'));
+
+        if ($import->failures()->isNotEmpty()) {
+            $errors = [];
+            foreach ($import->failures() as $failure) {
+                $errorMessages = implode(', ', $failure->errors());
+                $errors[] = "Row {$failure->row()}: {$errorMessages}";
+            }
+            $errorMessage = "Import completed with some errors. Please check the following rows:<br>" . implode('<br>', $errors);
+            
+            return redirect()->route('members.index')
+                ->with('success', 'Import process completed. Some rows were not imported.')
+                ->with('error', $errorMessage);
+        }
+
+        return redirect()->route('members.index')->with('success', 'All members imported successfully.');
+    }
+
+    public function downloadSample()
+    {
+        return response()->download(base_path('sample_members.csv'));
     }
 }

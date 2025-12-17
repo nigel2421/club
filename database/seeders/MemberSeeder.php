@@ -25,7 +25,6 @@ class MemberSeeder extends Seeder
                 'status' => $faker->randomElement(['good_standing', 'delinquent']),
                 'member_type' => $faker->randomElement(['regular', 'premium', 'vip']),
                 'date_of_birth' => $faker->date(),
-                'gender' => $faker->randomElement(['male', 'female']),
             ]);
         }
     }

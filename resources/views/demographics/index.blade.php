@@ -6,16 +6,7 @@
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-2xl font-bold mb-4">Demographics</h1>
 
-        <nav class="mb-4">
-            <ul class="flex">
-                <li class="mr-6">
-                    <a class="text-blue-500 hover:text-blue-800" href="{{ route('members.index') }}">Members</a>
-                </li>
-                <li>
-                    <a class="text-blue-500 hover:text-blue-800" href="{{ route('demographics') }}">Demographics</a>
-                </li>
-            </ul>
-        </nav>
+        @include('layouts.navigation')
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div class="border rounded-lg p-4">

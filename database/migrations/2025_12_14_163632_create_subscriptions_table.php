@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('member_id')->constrained()->onDelete('cascade');
             $table->year('year');
+            $table->decimal('revenue', 8, 2)->default(0.00);
             $table->timestamps();
         });
     }

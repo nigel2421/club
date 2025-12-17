@@ -6,12 +6,22 @@
     <div class="container mx-auto px-4 py-8">
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-2xl font-bold">Members</h1>
-            <a href="{{ route('members.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Create Member</a>
+            <div>
+                <a href="{{ route('overview') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Overview</a>
+                <a href="{{ route('members.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Create Member</a>
+                <a href="{{ route('members.showUploadForm') }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Upload Members</a>
+            </div>
         </div>
 
         @if (session('success'))
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
                 <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline">{!! session('error') !!}</span>
             </div>
         @endif
 
@@ -21,16 +31,7 @@
             </form>
         </div>
 
-        <nav class="mb-4">
-            <ul class="flex">
-                <li class="mr-6">
-                    <a class="text-blue-500 hover:text-blue-800" href="{{ route('members.index') }}">Members</a>
-                </li>
-                <li>
-                    <a class="text-blue-500 hover:text-blue-800" href="{{ route('demographics') }}">Demographics</a>
-                </li>
-            </ul>
-        </nav>
+        @include('layouts.navigation')
 
         @if ($members->isEmpty())
             <p class="text-gray-700">No members found.</p>
@@ -63,9 +64,6 @@
                     </thead>
                     <tbody>
                         @foreach ($members as $member)
-                            @php
-                                $subscribedYears = $member->subscriptions->pluck('year')->toArray();
-                            @endphp
                             <tr>
                                 <td class="border px-4 py-2">{{ $member->member_number }}</td>
                                 <td class="border px-4 py-2">{{ $member->name }}</td>
@@ -73,17 +71,16 @@
                                 <td class="border px-4 py-2">{{ $member->phone_number }}</td>
                                 <td class="border px-4 py-2">{{ $member->email }}</td>
                                 <td class="border px-4 py-2">{{ $member->date_of_birth }}</td>
-                                <td class="border px-4 py-2">{{ \Carbon\Carbon::parse($member->date_of_birth)->age }}</td>
+                                <td class="border px-4 py-2">{{ $member->age }}</td>
                                 <td class="border px-4 py-2">{{ $member->doj }}</td>
                                 <td class="border px-4 py-2">{{ $member->profession }}</td>
                                 <td class="border px-4 py-2">{{ $member->race }}</td>
                                 @for ($year = 2020; $year <= 2025; $year++)
                                     <td class="border px-4 py-2 text-center">
-                                        @if (in_array($year, $subscribedYears))
-                                            <span class="text-green-500">✔</span>
-                                        @else
-                                            <span class="text-red-500">✖</span>
-                                        @endif
+                                        @php
+                                            $subscription = $member->subscriptions->firstWhere('year', $year);
+                                        @endphp
+                                        {{ $subscription ? '$' . number_format($subscription->revenue, 2) : 'N/A' }}
                                     </td>
                                 @endfor
                                 <td class="border px-4 py-2">{{ $member->minimum_spent }}</td>

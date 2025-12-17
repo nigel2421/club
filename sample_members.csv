@@ -1,0 +1,10 @@
+name,email,phone_number,date_of_birth,doj,profession,race,minimum_spent,contact_details,status,member_type
+John Doe,john.doe@example.com,1234567890,1990-01-15,2023-01-10,Engineer,Caucasian,150.50,123 Main St,Active,Premium
+Jane Smith,,0987654321,1985-05-20,2022-11-20,Doctor,Asian,250.00,456 Oak Ave,Active,Standard
+Peter Jones,peterjones,5555555555,1992-08-01,,,Student,Hispanic,,Inactive,
+Alice Williams,alice.williams@example.com,1112223333,,,,,,75.25,789 Pine Ln,Active,Premium
+, , , , , , , , , ,
+Michael Brown,michael.brown@example.com,,,,,,,,,,Standard
+Invalid Date,invalid.date@test.com,4445556666,not-a-date,2023-03-01,Artist,African,50,Some details,Pending,Standard
+Bad Spend,bad.spend@test.com,7778889999,1995-12-12,2023-04-01,Writer,Other,abc,More details,Active,Standard
+Just Name,,,,,,,,,,,

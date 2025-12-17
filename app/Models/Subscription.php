@@ -12,6 +12,7 @@ class Subscription extends Model
     protected $fillable = [
         'member_id',
         'year',
+        'revenue',
     ];
 
     public function member()

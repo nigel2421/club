@@ -14,13 +14,12 @@ return new class extends Migration
         Schema::create('members', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('email')->unique()->nullable();
             $table->string('member_number')->unique();
             $table->string('contact_details');
             $table->string('status');
             $table->string('member_type');
             $table->date('date_of_birth');
-            $table->string('gender'); // Add gender column
             $table->timestamps();
         });
     }
