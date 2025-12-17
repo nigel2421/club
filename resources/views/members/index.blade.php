@@ -31,8 +31,6 @@
             </form>
         </div>
 
-        @include('layouts.navigation')
-
         @if ($members->isEmpty())
             <p class="text-gray-700">No members found.</p>
         @else

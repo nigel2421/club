@@ -15,17 +15,32 @@ class DemographicsController extends Controller
      */
     public function index()
     {
-        $genderDistribution = Member::select('gender', DB::raw('count(*) as count'))
+        // Gender Data
+        $genderData = Member::select('gender', DB::raw('count(*) as count'))
             ->groupBy('gender')
-            ->pluck('count', 'gender');
-        
-        $memberTypes = Member::select('member_type', DB::raw('count(*) as count'))
-            ->groupBy('member_type')
-            ->pluck('count', 'member_type');
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->gender ?? 'Unspecified' => $item->count];
+            })
+            ->all();
 
-        return view('demographics', [
-            'genderDistribution' => $genderDistribution,
-            'memberTypes' => $memberTypes,
+        // Member Type Data
+        $memberTypeData = Member::select('member_type', DB::raw('count(*) as count'))
+            ->groupBy('member_type')
+            ->pluck('count', 'member_type')
+            ->all();
+
+        // Status Data
+        $statusData = Member::select('status', DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->all();
+
+
+        return view('demographics.index', [
+            'genderData' => $genderData,
+            'memberTypeData' => $memberTypeData,
+            'statusData' => $statusData,
         ]);
     }
 }
