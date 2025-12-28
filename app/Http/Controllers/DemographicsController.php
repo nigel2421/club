@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DemographicsController extends Controller
 {
@@ -36,11 +37,34 @@ class DemographicsController extends Controller
             ->pluck('count', 'status')
             ->all();
 
+        // Average Age
+        $averageAge = Member::whereNotNull('date_of_birth')->get()->avg(function ($member) {
+            return Carbon::parse($member->date_of_birth)->age;
+        });
+        $averageAge = round($averageAge);
+
+
+        // Race Data
+        $raceData = Member::select('race', DB::raw('count(*) as count'))
+            ->groupBy('race')
+            ->pluck('count', 'race')
+            ->all();
+
+        // Profession Data
+        $professionData = Member::select('profession', DB::raw('count(*) as count'))
+            ->groupBy('profession')
+            ->pluck('count', 'profession')
+            ->all();
+
+        dd($raceData, $professionData);
 
         return view('demographics.index', [
             'genderData' => $genderData,
             'memberTypeData' => $memberTypeData,
             'statusData' => $statusData,
+            'averageAge' => $averageAge,
+            'raceData' => $raceData,
+            'professionData' => $professionData,
         ]);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Member;
 use Illuminate\Http\Request;
 use App\Imports\MembersImport;
+use App\Exports\MembersExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MemberController extends Controller
@@ -20,7 +21,9 @@ class MemberController extends Controller
                   ->orWhere('member_number', 'like', $searchTerm);
         }
 
-        $members = $query->paginate(15);
+        $limit = $request->input('limit', 10);
+
+        $members = $query->paginate($limit)->appends(request()->query());
 
         return view('members.index', compact('members'));
     }
@@ -39,11 +42,13 @@ class MemberController extends Controller
             'doj' => 'nullable|date',
             'profession' => 'nullable|string',
             'race' => 'nullable|string',
+            'gender' => 'required|string',
             'minimum_spent' => 'nullable|numeric',
             'contact_details' => 'required|string',
             'status' => 'required|string',
             'member_type' => 'required|string',
             'date_of_birth' => 'required|date',
+            'age' => 'nullable|numeric',
             'subscriptions' => 'nullable|array',
             'subscriptions.*.year' => 'required|integer|min:1900',
             'subscriptions.*.revenue' => 'nullable|numeric',
@@ -68,6 +73,32 @@ class MemberController extends Controller
         return view('members.show', compact('member'));
     }
 
+    public function details(Member $member)
+    {
+        $member->load('subscriptions');
+        $subscriptions_by_year = [];
+        for ($year = 2020; $year <= 2025; $year++) {
+            $subscription = $member->subscriptions->firstWhere('year', $year);
+            $subscriptions_by_year[$year] = $subscription ? number_format($subscription->revenue, 2) : 'N/A';
+        }
+
+        return response()->json([
+            'name' => $member->name,
+            'member_number' => $member->member_number,
+            'email' => $member->email,
+            'phone_number' => $member->phone_number,
+            'member_type' => $member->member_type,
+            'date_of_birth' => $member->date_of_birth,
+            'age' => $member->age,
+            'doj' => $member->doj,
+            'profession' => $member->profession,
+            'race' => $member->race,
+            'gender' => $member->gender,
+            'minimum_spent' => $member->minimum_spent,
+            'subscriptions_by_year' => $subscriptions_by_year,
+        ]);
+    }
+
     public function edit(Member $member)
     {
         return view('members.edit', compact('member'));
@@ -82,11 +113,13 @@ class MemberController extends Controller
             'doj' => 'nullable|date',
             'profession' => 'nullable|string',
             'race' => 'nullable|string',
+            'gender' => 'required|string',
             'minimum_spent' => 'nullable|numeric',
             'contact_details' => 'required|string',
             'status' => 'required|string',
             'member_type' => 'required|string',
             'date_of_birth' => 'required|date',
+            'age' => 'nullable|numeric',
             'subscriptions' => 'nullable|array',
             'subscriptions.*.year' => 'required|integer|min:1900',
             'subscriptions.*.revenue' => 'nullable|numeric',
@@ -112,6 +145,18 @@ class MemberController extends Controller
         $member->delete();
 
         return redirect()->route('members.index')->with('success', 'Member deleted successfully.');
+    }
+
+    public function massDestroy(Request $request)
+    {
+        $ids = json_decode($request->input('ids'), true);
+
+        if (is_array($ids)) {
+            Member::whereIn('id', $ids)->delete();
+            return redirect()->route('members.index')->with('success', 'Selected members have been deleted.');
+        } else {
+            return redirect()->route('members.index')->with('error', 'Invalid request for mass deletion.');
+        }
     }
 
     public function showUploadForm()
@@ -147,5 +192,10 @@ class MemberController extends Controller
     public function downloadSample()
     {
         return response()->download(base_path('sample_members.csv'));
+    }
+
+    public function export()
+    {
+        return Excel::download(new MembersExport, 'members.xlsx');
     }
 }

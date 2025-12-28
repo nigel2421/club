@@ -35,10 +35,12 @@
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="status">
                     Status
-                </label>
+                </dlabel>
                 <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="status" name="status">
                     <option value="good_standing" {{ old('status', $member->status ?? '') == 'good_standing' ? 'selected' : '' }}>Good Standing</option>
                     <option value="defaulted" {{ old('status', $member->status ?? '') == 'defaulted' ? 'selected' : '' }}>Defaulted</option>
+                    <option value="resigned" {{ old('status', $member->status ?? '') == 'resigned' ? 'selected' : '' }}>Resigned</option>
+                    <option value="suspended" {{ old('status', $member->status ?? '') == 'suspended' ? 'selected' : '' }}>Suspended</option>
                 </select>
             </div>
             <div class="mb-4">
@@ -46,10 +48,11 @@
                     Member Type
                 </label>
                 <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="member_type" name="member_type">
-                    <option value="town" {{ old('member_type', $member->member_type ?? '') == 'town' ? 'selected' : '' }}>Town</option>
-                    <option value="life" {{ old('member_type', $member->member_type ?? '') == 'life' ? 'selected' : '' }}>Life</option>
-                    <option value="upcountry" {{ old('member_type', $member->member_type ?? '') == 'upcountry' ? 'selected' : '' }}>Upcountry</option>
-                    <option value="junior" {{ old('member_type', $member->member_type ?? '') == 'junior' ? 'selected' : '' }}>Junior</option>
+                    <option value="town_member" {{ old('member_type', $member->member_type ?? '') == 'town_member' ? 'selected' : '' }}>TOWN MEMBER</option>
+                    <option value="oversees_member" {{ old('member_type', $member->member_type ?? '') == 'oversees_member' ? 'selected' : '' }}>OVERSEES MEMBER</option>
+                    <option value="upcountry_member" {{ old('member_type', $member->member_type ?? '') == 'upcountry_member' ? 'selected' : '' }}>UPCOUNTRY MEMBER</option>
+                    <option value="junior_member" {{ old('member_type', $member->member_type ?? '') == 'junior_member' ? 'selected' : '' }}>JUNIOR MEMBER</option>
+                    <option value="life_member" {{ old('member_type', $member->member_type ?? '') == 'life_member' ? 'selected' : '' }}>LIFE MEMBER</option>
                 </select>
             </div>
             <div class="mb-4">
@@ -57,6 +60,21 @@
                     Date of Birth
                 </label>
                 <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="date_of_birth" type="date" name="date_of_birth" value="{{ old('date_of_birth', $member->date_of_birth ?? '') }}">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="age">
+                    Age
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="age" type="number" name="age" value="{{ old('age', $member->age ?? '') }}">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="gender">
+                    Gender
+                </label>
+                <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="gender" name="gender">
+                    <option value="male" {{ old('gender', $member->gender ?? '') == 'male' ? 'selected' : '' }}>Male</option>
+                    <option value="female" {{ old('gender', $member->gender ?? '') == 'female' ? 'selected' : '' }}>Female</option>
+                </select>
             </div>
             <div class="flex items-center justify-between">
                 <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">

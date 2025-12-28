@@ -72,7 +72,7 @@
                             @foreach($member->subscriptions as $subscription)
                                 <tr>
                                     <td class="border px-4 py-2">{{ $subscription->year }}</td>
-                                    <td class="border px-4 py-2">${{ number_format($subscription->revenue, 2) }}</td>
+                                    <td class="border px-4 py-2">Ksh {{ number_format($subscription->revenue, 2) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

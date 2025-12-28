@@ -22,6 +22,7 @@ class Member extends Model
         'doj',
         'profession',
         'race',
+        'gender',
         'minimum_spent',
     ];
 

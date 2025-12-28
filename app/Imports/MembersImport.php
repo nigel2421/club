@@ -16,24 +16,38 @@ class MembersImport implements OnEachRow, WithHeadingRow, WithValidation, SkipsO
 {
     use SkipsFailures;
 
-    public function prepareForValidation(array &$row, int $rowIndex): void
-    {
-        if (isset($row['phone_number'])) {
-            $row['phone_number'] = (string) $row['phone_number'];
-        }
-
-        if (isset($row['email']) && !filter_var($row['email'], FILTER_VALIDATE_EMAIL)) {
-            $row['email'] = null;
-        }
-    }
-
     public function onRow(Row $row)
     {
         $row = $row->toArray();
 
+        $member = Member::where('member_number', $row['member_number'])->first();
+
+        if ($member) {
+            $this->updateMember($member, $row);
+        } else {
+            $this->createMember($row);
+        }
+    }
+
+    private function updateMember(Member $member, array $row)
+    {
+        $dataToUpdate = [];
+        foreach ($this->getFillableFields() as $field) {
+            if (empty($member->{$field}) && !empty($row[$field])) {
+                $dataToUpdate[$field] = $row[$field];
+            }
+        }
+
+        if (!empty($dataToUpdate)) {
+            $member->update($dataToUpdate);
+        }
+    }
+
+    private function createMember(array $row)
+    {
         Member::create([
-            'name'     => $row['name'],
-            'email'    => $row['email'] ?? null,
+            'name' => $row['name'] ?? null,
+            'email' => $row['email'] ?? null,
             'phone_number' => $row['phone_number'] ?? null,
             'date_of_birth' => $row['date_of_birth'] ?? null,
             'doj' => $row['doj'] ?? null,
@@ -43,24 +57,33 @@ class MembersImport implements OnEachRow, WithHeadingRow, WithValidation, SkipsO
             'contact_details' => $row['contact_details'] ?? null,
             'status' => $row['status'] ?? null,
             'member_type' => $row['member_type'] ?? null,
-            'member_number' => 'MEM-' . uniqid(),
+            'member_number' => $row['member_number'] ?? 'MEM-' . uniqid(),
         ]);
+    }
+
+    private function getFillableFields(): array
+    {
+        return [
+            'name', 'email', 'phone_number', 'date_of_birth', 'doj', 'profession',
+            'race', 'minimum_spent', 'contact_details', 'status', 'member_type'
+        ];
     }
 
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|email|unique:members,email',
-            'phone_number' => 'nullable|string',
-            'date_of_birth' => 'nullable|date',
-            'doj' => 'nullable|date',
-            'profession' => 'nullable|string',
-            'race' => 'nullable|string',
-            'minimum_spent' => 'nullable|numeric',
-            'contact_details' => 'nullable|string',
-            'status' => 'nullable|string',
-            'member_type' => 'nullable|string',
+            '*.member_number' => 'required|string|max:255',
+            '*.name' => 'required|string|max:255',
+            '*.email' => 'nullable|email',
+            '*.phone_number' => 'nullable|string',
+            '*.date_of_birth' => 'nullable|date',
+            '*.doj' => 'nullable|date',
+            '*.profession' => 'nullable|string',
+            '*.race' => 'nullable|string',
+            '*.minimum_spent' => 'nullable|numeric',
+            '*.contact_details' => 'nullable|string',
+            '*.status' => 'nullable|string',
+            '*.member_type' => 'nullable|string',
         ];
     }
 
